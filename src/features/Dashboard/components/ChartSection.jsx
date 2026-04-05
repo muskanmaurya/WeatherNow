@@ -1,5 +1,7 @@
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
+
+
 export const ChartShell = ({ title, unit, children, className = '' }) => (
   <section className={`rounded-2xl border border-white/20 bg-white/8 p-4 shadow-lg backdrop-blur-sm ${className}`}>
     <div className="mb-3 flex items-center justify-between">
@@ -21,7 +23,7 @@ export const TemperatureChart = ({ data, temperatureUnitLabel }) => (
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-        <XAxis dataKey="time" tick={{ fill: '#e2e8f0', fontSize: 11 }} tickMargin={8} />
+        <XAxis dataKey="time" tick={{ fill: '#e2e8f0', fontSize: 11 }} tickMargin={8} interval={3} />
         <YAxis tick={{ fill: '#e2e8f0', fontSize: 11 }} width={44} />
         <Tooltip contentStyle={{ backgroundColor: '#0b2a66', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '0.75rem' }} />
         <Area type="monotone" dataKey="temperature" stroke="#f59e0b" fill="url(#tempFill)" strokeWidth={2.5} dot={false} />
@@ -35,7 +37,7 @@ export const HumidityChart = ({ data }) => (
     <ResponsiveContainer>
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-        <XAxis dataKey="time" tick={{ fill: '#e2e8f0', fontSize: 11 }} tickMargin={8} />
+        <XAxis dataKey="time" tick={{ fill: '#e2e8f0', fontSize: 11 }} tickMargin={8} interval={3} />
         <YAxis tick={{ fill: '#e2e8f0', fontSize: 11 }} width={44} />
         <Tooltip contentStyle={{ backgroundColor: '#0b2a66', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '0.75rem' }} />
         <Line type="monotone" dataKey="humidity" stroke="#7dd3fc" strokeWidth={2.5} dot={false} />
@@ -49,7 +51,7 @@ export const PrecipitationChart = ({ data }) => (
     <ResponsiveContainer>
       <BarChart data={data}>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-        <XAxis dataKey="time" tick={{ fill: '#e2e8f0', fontSize: 11 }} tickMargin={8} />
+        <XAxis dataKey="time" tick={{ fill: '#e2e8f0', fontSize: 11 }} tickMargin={8} interval={3} />
         <YAxis tick={{ fill: '#e2e8f0', fontSize: 11 }} width={44} />
         <Tooltip contentStyle={{ backgroundColor: '#0b2a66', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '0.75rem' }} />
         <Bar dataKey="precipitation" fill="#22d3ee" radius={[8, 8, 0, 0]} />
@@ -63,7 +65,7 @@ export const VisibilityChart = ({ data }) => (
     <ResponsiveContainer>
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-        <XAxis dataKey="time" tick={{ fill: '#e2e8f0', fontSize: 11 }} tickMargin={8} />
+        <XAxis dataKey="time" tick={{ fill: '#e2e8f0', fontSize: 11 }} tickMargin={8} interval={3} />
         <YAxis tick={{ fill: '#e2e8f0', fontSize: 11 }} width={44} />
         <Tooltip contentStyle={{ backgroundColor: '#0b2a66', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '0.75rem' }} />
         <Line type="monotone" dataKey="visibility" stroke="#bfdbfe" strokeWidth={2.5} dot={false} />
@@ -83,7 +85,7 @@ export const WindChart = ({ data }) => (
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-        <XAxis dataKey="time" tick={{ fill: '#e2e8f0', fontSize: 11 }} tickMargin={8} />
+        <XAxis dataKey="time" tick={{ fill: '#e2e8f0', fontSize: 11 }} tickMargin={8} interval={3} />
         <YAxis tick={{ fill: '#e2e8f0', fontSize: 11 }} width={44} />
         <Tooltip contentStyle={{ backgroundColor: '#0b2a66', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '0.75rem' }} />
         <Area type="monotone" dataKey="windSpeed10m" stroke="#f9a8d4" fill="url(#windFill)" strokeWidth={2.5} dot={false} />
@@ -97,7 +99,7 @@ export const ParticleChart = ({ data }) => (
     <ResponsiveContainer>
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-        <XAxis dataKey="time" tick={{ fill: '#e2e8f0', fontSize: 11 }} tickMargin={8} />
+        <XAxis dataKey="time" tick={{ fill: '#e2e8f0', fontSize: 11 }} tickMargin={8} interval={3} />
         <YAxis tick={{ fill: '#e2e8f0', fontSize: 11 }} width={44} />
         <Tooltip contentStyle={{ backgroundColor: '#0b2a66', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '0.75rem' }} />
         <Legend wrapperStyle={{ color: '#f8fafc', fontSize: '12px' }} />
