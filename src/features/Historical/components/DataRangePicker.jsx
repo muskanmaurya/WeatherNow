@@ -22,7 +22,7 @@ const DataRangePicker = ({
 
 	return (
 		<section className="rounded-3xl border border-white/15 bg-white/10 p-5 shadow-2xl backdrop-blur-md">
-			<div className="flex flex-wrap items-start justify-between gap-3">
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 				<div>
 					<p className="text-sm text-cyan-100/90">Historical analysis</p>
 					<h2 className="mt-1 text-2xl font-semibold tracking-tight">Select a range up to 2 years</h2>
@@ -69,7 +69,7 @@ const DataRangePicker = ({
 					/>
 				</label>
 
-				<div className="flex flex-wrap items-end gap-2 xl:justify-end">
+				<div className="flex flex-col gap-2 sm:flex-row sm:items-end xl:justify-end">
 					{PRESETS.map((preset) => (
 						<button
 							key={preset.label}
@@ -92,7 +92,7 @@ const DataRangePicker = ({
 				</div>
 			</div>
 
-			<div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-200">
+			<div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-slate-200">
 				<span>Selected range: {rangeLabel}</span>
 				<span>All charts support horizontal scroll and zoom controls.</span>
 			</div>

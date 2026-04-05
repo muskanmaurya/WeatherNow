@@ -23,7 +23,7 @@ const Navbar = ({selectedDate, onDateChange}) => {
   });
 
   return (
-    <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-sm text-cyan-100/90">Weather Dashboard</p>
               <h1 className="mt-1 text-3xl font-semibold tracking-tight">{location.city}</h1>
@@ -31,10 +31,10 @@ const Navbar = ({selectedDate, onDateChange}) => {
               <p className="mt-1 text-xl text-slate-100/95">{timeString}</p>
             </div>
 
-            <div className="p-1">
+            <div className="flex flex-col gap-3 w-full sm:w-auto p-1">
               <label htmlFor="date-picker" >
               </label>
-              <div className="relative w-35">
+              <div className="relative w-full sm:w-48">
                 <input
                   id="date-picker"
                   type="date"
@@ -42,13 +42,13 @@ const Navbar = ({selectedDate, onDateChange}) => {
                   max={"availableDates[availableDates.length - 1]"}
                   value={selectedDate}
                   onChange={(e)=>onDateChange(e.target.value)}
-                  className="date-picker-input w-37 rounded-lg border border-white/25 bg-slate-950/60 px-3 py-2 pr-12 text-sm outline-none ring-cyan-300 transition focus:ring-2 "
+                  className="date-picker-input w-full rounded-lg border border-white/25 bg-slate-950/60 px-3 py-2 pr-10 text-sm outline-none ring-cyan-300 transition focus:ring-2"
                 />
-                <Calendar className="pointer-events-none absolute right-3 top-1/2 size-5 -translate-y-1/2 translate-x-1/3 text-white" />
+                <Calendar className="pointer-events-none absolute right-3 top-1/2 size-5 -translate-y-1/2 text-white/70" />
               </div>
               <Link
               to="/trends"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/20 mt-3"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/20 sm:w-auto"
             >
               Historical Trends
               <ArrowRight size={16} />

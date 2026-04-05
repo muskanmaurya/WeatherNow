@@ -155,7 +155,7 @@ const HistoricalPage = () => {
     <div className={`min-h-screen bg-gradient-to-b ${themeClasses[activeTheme]} bg-cover bg-center p-4 text-slate-100 transition-colors duration-1000`}>
       <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <section className="rounded-3xl border border-white/15 bg-black/5 p-5 shadow-2xl backdrop-blur-md sm:p-7">
-          <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="flex items-center gap-2 text-sm text-cyan-100/90">
                 <ShieldCheck size={16} />
@@ -169,7 +169,7 @@ const HistoricalPage = () => {
 
             <Link
               to="/"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/20"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/20 sm:w-auto"
             >
               <ArrowLeft size={16} />
               Back to dashboard
