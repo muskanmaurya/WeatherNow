@@ -43,7 +43,7 @@ const isToday = selectedDate === new Date().toISOString().split('T')[0];
   useEffect(()=>{
     if (!location.lat || !location.lon) return;
 
-    const fetchAllData=async()=>{
+    const fetchAllWeatherData=async()=>{
       try {
         const [weatherRes, aqiRes] = await Promise.all([
       fetch(`https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&start_date=${selectedDate}&end_date=${selectedDate}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,uv_index,visibility,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,wind_speed_10m_max&timezone=auto`),
@@ -59,7 +59,7 @@ const isToday = selectedDate === new Date().toISOString().split('T')[0];
 
     const formattedData=mapWeatherData(weather, aqi)
     setWeatherData(formattedData);
-
+    
     // const hourIdx = new Date().getHours();
     // const isToday = selectedDate === new Date().toISOString().split('T')[0];
 
@@ -123,12 +123,12 @@ const isToday = selectedDate === new Date().toISOString().split('T')[0];
 
     console.log(formattedData);
       } catch (error) {
-        console.log("failed to fetch data",error);
+        console.log("failed to fetch weather data",error);
         
       }
     }
 
-    fetchAllData();
+    fetchAllWeatherData();
 
   },[location.lat, location.lon, selectedDate])
 

@@ -9,12 +9,15 @@ import ComparisonTable from '../features/Historical/components/ComparisonTable.j
 import {
   buildComparisonRows,
   daysBetween,
-  getHistoricalRange,
   historicalBounds,
   formatMinutesToIst,
   shiftDateKey,
   summariseHistoricalRange,
 } from '../features/Historical/services/historicalApi.js'
+import { mapHistoricalData } from '../features/Historical/services/historicalMapper.js'
+
+import { useGeolocation } from '../hooks/useGeolocation.js'
+
 
 const MAX_RANGE_DAYS = 730
 const DEFAULT_RANGE_DAYS = 180
@@ -25,6 +28,10 @@ const HistoricalPage = () => {
   const [startDate, setStartDate] = useState(shiftDateKey(historicalBounds.maxDate, -(DEFAULT_RANGE_DAYS - 1)))
   const [endDate, setEndDate] = useState(historicalBounds.maxDate)
   const [zoomWindow, setZoomWindow] = useState({ startIndex: 0, endIndex: DEFAULT_RANGE_DAYS - 1 })
+  const [selectedRecords, setSelectedRecords] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  const { location } = useGeolocation();
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -36,15 +43,49 @@ const HistoricalPage = () => {
 
   const activeTheme = getTheme(currentHour)
 
-  const selectedRecords = useMemo(() => getHistoricalRange(startDate, endDate), [startDate, endDate])
-
   useEffect(() => {
     if (!selectedRecords.length) return
     setZoomWindow({
       startIndex: 0,
       endIndex: selectedRecords.length - 1,
     })
-  }, [selectedRecords])
+  }, [selectedRecords.length])
+
+  useEffect(()=>{
+    
+
+    const fetchAllHistoricalData = async ()=>{
+
+      if(!location.lat || !location.lon || !startDate || !endDate){
+        console.log("location or date not set, cannot fetch historical data");
+        return ;
+      }
+
+      setIsLoading(true);
+
+      try {
+        const [weatherResponse, airQualityResponse] = await Promise.all([
+          fetch(`https://archive-api.open-meteo.com/v1/archive?latitude=${location.lat}&longitude=${location.lon}&start_date=${startDate}&end_date=${endDate}&daily=temperature_2m_max,temperature_2m_min,temperature_2m_mean,sunrise,sunset,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant&timezone=auto`),
+          fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${location.lat}&longitude=${location.lon}&start_date=${startDate}&end_date=${endDate}&hourly=pm10,pm2_5&timezone=auto`)
+        ])
+
+        const weatherData = await weatherResponse.json()
+        const airQualityData = await airQualityResponse.json()
+
+        const mappedData = mapHistoricalData(weatherData, airQualityData);
+        setSelectedRecords(mappedData);
+
+      } catch (error) {
+
+        console.log("failed to fetch weather archive data ",error);
+        
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchAllHistoricalData();
+  },[location.lat, location.lon, startDate, endDate])
 
   const visibleRecords = useMemo(
     () => selectedRecords.slice(zoomWindow.startIndex, zoomWindow.endIndex + 1),
@@ -90,13 +131,6 @@ const HistoricalPage = () => {
 
     if (nextStart > nextEnd) {
       nextStart = nextEnd
-    }
-
-    const nextRange = getHistoricalRange(nextStart, nextEnd)
-
-    if (!nextRange.length) {
-      setRangeError('The selected dates are outside the available historical window.')
-      return
     }
 
     setStartDate(nextStart)
@@ -225,17 +259,25 @@ const HistoricalPage = () => {
             error={rangeError}
           />
 
-          <TrendCharts
-            fullData={selectedRecords}
-            visibleData={visibleRecords}
-            zoomWindow={zoomWindow}
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-            onResetZoom={handleResetZoom}
-            onBrushChange={handleBrushChange}
-          />
+          {isLoading ? (
+            <div className="flex h-64 items-center justify-center rounded-3xl border border-white/15 bg-white/5">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-cyan-400 border-t-transparent"></div>
+            </div>
+          ) : (
+            <>
+              <TrendCharts
+                fullData={selectedRecords}
+                visibleData={visibleRecords}
+                zoomWindow={zoomWindow}
+                onZoomIn={handleZoomIn}
+                onZoomOut={handleZoomOut}
+                onResetZoom={handleResetZoom}
+                onBrushChange={handleBrushChange}
+              />
 
-          <ComparisonTable summary={summary} records={visibleRecords} comparisonRows={comparisonRows} />
+              <ComparisonTable summary={summary} records={visibleRecords} comparisonRows={comparisonRows} />
+            </>
+          )}
         </div>
       </main>
     </div>

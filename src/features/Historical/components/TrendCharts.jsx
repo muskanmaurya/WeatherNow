@@ -37,8 +37,8 @@ const ChartShell = ({ title, subtitle, children }) => (
 				<p className="mt-1 text-sm text-slate-200">{subtitle}</p>
 			</div>
 		</div>
-		<div className="mt-4 overflow-x-auto">
-			<div className="min-w-275">{children}</div>
+		<div className="mt-4 w-full">
+			{children}
 		</div>
 	</section>
 )
@@ -70,7 +70,7 @@ const BrushChart = ({ data, zoomWindow, onBrushChange }) => (
 			</div>
 		</div>
 
-		<div className="mt-4 h-28 min-w-275">
+		<div className="mt-4 h-28 w-full">
 			<ResponsiveContainer width="100%" height="100%">
 				<LineChart data={data}>
 					<CartesianGrid stroke="rgba(255, 255, 255, 0.08)" strokeDasharray="4 4" />
@@ -111,10 +111,21 @@ const TrendCharts = ({
 	onResetZoom,
 	onBrushChange,
 }) => {
+
+	// Wheel-based zoom: scroll up -> zoom in, scroll down -> zoom out.
+	const handleWheel = (e) => {
+		e.preventDefault()
+		if (!e.deltaY && !e.deltaX) return
+		if (e.deltaY < 0) {
+			onZoomIn()
+		} else if (e.deltaY > 0) {
+			onZoomOut()
+		}
+	}
 	const directionDistribution = getDirectionDistribution(visibleData)
 
 	return (
-		<section className="space-y-4">
+		<section className="space-y-4" onWheel={handleWheel}>
 			<div className="flex flex-wrap items-center justify-between gap-3">
 				<div>
 					<h2 className="text-2xl font-semibold tracking-tight text-white">Historical charts</h2>
@@ -231,7 +242,7 @@ const TrendCharts = ({
 							</p>
 						</div>
 
-						<div className="mt-4 min-w-240">
+						<div className="mt-4 w-full">
 							<ResponsiveContainer width="100%" height={220}>
 								<BarChart data={directionDistribution}>
 									<CartesianGrid stroke="rgba(255, 255, 255, 0.08)" strokeDasharray="4 4" />
