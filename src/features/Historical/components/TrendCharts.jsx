@@ -17,7 +17,7 @@ import {
 	formatMinutesToIst,
 	formatShortDateLabel,
 	getDirectionDistribution,
-} from '../services/historicalApi.js'
+} from '../services/historicalEngine.js'
 
 const chartColors = {
 	mean: '#67e8f9',
@@ -29,16 +29,18 @@ const chartColors = {
 	pm25: '#22c55e',
 }
 
-const ChartShell = ({ title, subtitle, children }) => (
-	<section className="rounded-3xl border border-white/15 bg-white/10 p-4 shadow-2xl backdrop-blur-md sm:p-5">
+const ChartShell = ({ title, subtitle, children, scrollable = false, dataLength = 0 }) => (
+	<section className="min-w-0 rounded-3xl border border-white/15 bg-white/10 p-4 shadow-2xl backdrop-blur-md sm:p-5">
 		<div className="flex flex-wrap items-start justify-between gap-3">
 			<div>
 				<h3 className="text-lg font-semibold text-white">{title}</h3>
 				<p className="mt-1 text-sm text-slate-200">{subtitle}</p>
 			</div>
 		</div>
-		<div className="mt-4 w-full">
-			{children}
+		<div className={`mt-4 w-full ${scrollable ? 'overflow-x-auto overflow-y-hidden styled-scrollbar' : ''}`}>
+			<div style={{ minWidth: scrollable ? Math.max(100, dataLength * 45) + 'px' : '100%' }}>
+				{children}
+			</div>
 		</div>
 	</section>
 )
@@ -54,6 +56,11 @@ const chartTooltipStyle = {
 		color: '#f8fafc',
 		fontWeight: 600,
 	},
+}
+
+const axisTickStyle = {
+	fill: '#f8fafc',
+	fontSize: 12,
 }
 
 const formatCurrencyLikeNumber = (value, unit = '') => `${value}${unit}`
@@ -74,7 +81,7 @@ const BrushChart = ({ data, zoomWindow, onBrushChange }) => (
 			<ResponsiveContainer width="100%" height="100%">
 				<LineChart data={data}>
 					<CartesianGrid stroke="rgba(255, 255, 255, 0.08)" strokeDasharray="4 4" />
-					<XAxis dataKey="dateKey" tickFormatter={formatShortDateLabel} minTickGap={18} />
+					<XAxis dataKey="dateKey" tickFormatter={formatShortDateLabel} minTickGap={18} tick={axisTickStyle} />
 					<YAxis hide />
 					<Tooltip
 						{...chartTooltipStyle}
@@ -165,12 +172,12 @@ const TrendCharts = ({
 			<BrushChart data={fullData} zoomWindow={zoomWindow} onBrushChange={onBrushChange} />
 
 			<div className="grid gap-4 xl:grid-cols-2">
-				<ChartShell title="Temperature trends" subtitle="Mean, max, and min temperatures across the selected range.">
+				<ChartShell title="Temperature trends" subtitle="Mean, max, and min temperatures across the selected range." scrollable={true} dataLength={visibleData.length}>
 					<ResponsiveContainer width="100%" height={290}>
 						<LineChart data={visibleData} syncId="historical-trends">
 							<CartesianGrid stroke="rgba(255, 255, 255, 0.08)" strokeDasharray="4 4" />
-							<XAxis dataKey="dateKey" tickFormatter={formatShortDateLabel} minTickGap={18} />
-							<YAxis />
+							<XAxis dataKey="dateKey" tickFormatter={formatShortDateLabel} minTickGap={18} tick={axisTickStyle} />
+							<YAxis tick={axisTickStyle} />
 							<Tooltip {...chartTooltipStyle} labelFormatter={formatLongDateLabel} />
 							<Legend />
 							<Line type="monotone" dataKey="tempMean" name="Mean" stroke={chartColors.mean} dot={false} strokeWidth={2} />
@@ -180,12 +187,12 @@ const TrendCharts = ({
 					</ResponsiveContainer>
 				</ChartShell>
 
-				<ChartShell title="Sun cycle" subtitle="Sunrise and sunset are shown in IST to keep the timeline consistent.">
+				<ChartShell title="Sun cycle" subtitle="Sunrise and sunset are shown in IST to keep the timeline consistent." scrollable={true} dataLength={visibleData.length}>
 					<ResponsiveContainer width="100%" height={290}>
 						<LineChart data={visibleData} syncId="historical-trends">
 							<CartesianGrid stroke="rgba(255, 255, 255, 0.08)" strokeDasharray="4 4" />
-							<XAxis dataKey="dateKey" tickFormatter={formatShortDateLabel} minTickGap={18} />
-							<YAxis tickFormatter={formatMinutesToIst} domain={['dataMin - 20', 'dataMax + 20']} width={88} />
+							<XAxis dataKey="dateKey" tickFormatter={formatShortDateLabel} minTickGap={18} tick={axisTickStyle} />
+							<YAxis tickFormatter={formatMinutesToIst} domain={['dataMin - 20', 'dataMax + 20']} width={88} tick={axisTickStyle} />
 							<Tooltip
 								{...chartTooltipStyle}
 								labelFormatter={formatLongDateLabel}
@@ -198,12 +205,12 @@ const TrendCharts = ({
 					</ResponsiveContainer>
 				</ChartShell>
 
-				<ChartShell title="Precipitation" subtitle="Total precipitation for each day in the selected range.">
+				<ChartShell title="Precipitation" subtitle="Total precipitation for each day in the selected range." scrollable={true} dataLength={visibleData.length}>
 					<ResponsiveContainer width="100%" height={290}>
 						<BarChart data={visibleData} syncId="historical-trends">
 							<CartesianGrid stroke="rgba(255, 255, 255, 0.08)" strokeDasharray="4 4" />
-							<XAxis dataKey="dateKey" tickFormatter={formatShortDateLabel} minTickGap={18} />
-							<YAxis />
+							<XAxis dataKey="dateKey" tickFormatter={formatShortDateLabel} minTickGap={18} tick={axisTickStyle} />
+							<YAxis tick={axisTickStyle} />
 							<Tooltip
 								{...chartTooltipStyle}
 								labelFormatter={formatLongDateLabel}
@@ -214,12 +221,12 @@ const TrendCharts = ({
 					</ResponsiveContainer>
 				</ChartShell>
 
-				<ChartShell title="Wind speed" subtitle="Maximum wind speed per day with the most common direction summarized alongside it.">
+				<ChartShell title="Wind speed" subtitle="Maximum wind speed per day with the most common direction summarized alongside it." scrollable={true} dataLength={visibleData.length}>
 					<ResponsiveContainer width="100%" height={290}>
 						<LineChart data={visibleData} syncId="historical-trends">
 							<CartesianGrid stroke="rgba(255, 255, 255, 0.08)" strokeDasharray="4 4" />
-							<XAxis dataKey="dateKey" tickFormatter={formatShortDateLabel} minTickGap={18} />
-							<YAxis />
+							<XAxis dataKey="dateKey" tickFormatter={formatShortDateLabel} minTickGap={18} tick={axisTickStyle} />
+							<YAxis tick={axisTickStyle} />
 							<Tooltip
 								{...chartTooltipStyle}
 								labelFormatter={formatLongDateLabel}
@@ -246,8 +253,8 @@ const TrendCharts = ({
 							<ResponsiveContainer width="100%" height={220}>
 								<BarChart data={directionDistribution}>
 									<CartesianGrid stroke="rgba(255, 255, 255, 0.08)" strokeDasharray="4 4" />
-									<XAxis dataKey="direction" />
-									<YAxis allowDecimals={false} />
+									<XAxis dataKey="direction" tick={axisTickStyle} />
+									<YAxis allowDecimals={false} tick={axisTickStyle} />
 									<Tooltip {...chartTooltipStyle} formatter={(value) => [value, 'Days']} />
 									<Bar dataKey="count" name="Days" fill={chartColors.wind} radius={[8, 8, 0, 0]} />
 								</BarChart>
@@ -256,12 +263,12 @@ const TrendCharts = ({
 					</div>
 				</ChartShell>
 
-				<ChartShell title="Air quality" subtitle="PM10 and PM2.5 trends across the selected historical window.">
+				<ChartShell title="Air quality" subtitle="PM10 and PM2.5 trends across the selected historical window." scrollable={true} dataLength={visibleData.length}>
 					<ResponsiveContainer width="100%" height={290}>
 						<LineChart data={visibleData} syncId="historical-trends">
 							<CartesianGrid stroke="rgba(255, 255, 255, 0.08)" strokeDasharray="4 4" />
-							<XAxis dataKey="dateKey" tickFormatter={formatShortDateLabel} minTickGap={18} />
-							<YAxis />
+							<XAxis dataKey="dateKey" tickFormatter={formatShortDateLabel} minTickGap={18} tick={axisTickStyle} />
+							<YAxis tick={axisTickStyle} />
 							<Tooltip
 								{...chartTooltipStyle}
 								labelFormatter={formatLongDateLabel}

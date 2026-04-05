@@ -1,4 +1,4 @@
-import { formatLongDateLabel, formatShortDateLabel, formatMinutesToIst, WIND_DIRECTIONS } from './historicalApi.js'
+import { formatLongDateLabel, formatShortDateLabel, formatMinutesToIst, WIND_DIRECTIONS } from './historicalEngine.js'
 
 const directionFromDegrees = (degrees) => {
 	if (degrees === null || degrees === undefined) return '--'

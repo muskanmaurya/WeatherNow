@@ -19,23 +19,6 @@ export const formatHourLabel = (hour) => {
   return `${hour - 12} PM`
 }
 
-// export const formatTo12Hour = (isoString) => {
-//   if (!isoString) return '--:--'
-
-//   const timePart = isoString.split('T')[1]
-//   if (!timePart) return '--:--'
-
-//   let [hours, minutes] = timePart.split(':')
-//   let h = parseInt(hours)
-//   const m = minutes
-
-//   const ampm = h >= 12 ? 'PM' : 'AM'
-//   h = h % 12
-//   h = h ? h : 12
-
-//   return `${h}:${m} ${ampm}`
-// };
-
 export const formatTo12Hour = (isoString) => {
   if (typeof isoString !== 'string') return '--:--';
 
@@ -64,6 +47,9 @@ export const formatHourlyData = (hourly, aqiHourly) => {
     temperature: hourly.temperature_2m?.[index] ?? 0,
     humidity: hourly.relative_humidity_2m?.[index] ?? 0,
     precipitation: hourly.precipitation?.[index] ?? 0,
+    precipitationProbability: hourly.precipitation_probability?.[index] ?? 0,
+    weatherCode: hourly.weather_code?.[index] ?? 0,
+    isDay: hourly.is_day?.[index] === 1,
     
     // MATCH THESE TO YOUR CHART JSX:
     visibility: (hourly.visibility?.[index] ?? 0) / 1000, // API gives meters, Chart wants km

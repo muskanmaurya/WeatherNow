@@ -1,5 +1,5 @@
 import { CalendarDays, Droplets, Wind } from 'lucide-react'
-import { formatMinutesToIst } from '../services/historicalApi.js'
+import { formatMinutesToIst } from '../services/historicalEngine.js'
 
 const ComparisonTable = ({ summary, records, comparisonRows }) => {
 	if (!summary || !records.length) {

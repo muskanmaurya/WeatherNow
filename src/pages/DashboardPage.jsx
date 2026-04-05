@@ -1,140 +1,34 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  CloudRain,
-  Droplets,
-  Gauge,
-  Sunrise,
-  Sunset,
-  Wind,
-} from 'lucide-react'
+import {CloudRain,Gauge,Sunrise,Sunset,Wind} from 'lucide-react'
 import { getTheme } from '../utils/getTheme.js'
 import HourlyCarousel from '../features/Dashboard/components/HourlyCarousel.jsx'
-import { TemperatureChart, HumidityChart, PrecipitationChart, VisibilityChart, WindChart, ParticleChart } from '../features/Dashboard/components/ChartSection.jsx'
-import { formatIsoDate, withDayOffset,formatHourlyData, formatTo12Hour } from '../utils/formatters.js'
-import { availableDates, weatherByDate, themeClasses,buildOverviewData } from '../features/Dashboard/Services/WeatherEngine.js'
+import { HumidityChart, PrecipitationChart, VisibilityChart, WindChart, ParticleChart } from '../features/Dashboard/components/ChartSection.jsx'
+import { formatHourlyData, formatTo12Hour } from '../utils/formatters.js'
+import { themeClasses,buildOverviewData } from '../features/Dashboard/Services/WeatherEngine.js'
 import Navbar from '../components/Layout/Navbar.jsx'
 import { useGeolocation } from '../hooks/useGeolocation.js'
 import { mapWeatherData } from '../features/Dashboard/Services/weatherMapper.js'
-
+import { useDashboardWeather } from '../hooks/useWeather.js'
+import Loader from '../components/Common/Loader.jsx'
 
 const DashboardPage = () => {
-  const todayIso = formatIsoDate(withDayOffset(0))
-// At the top of DashboardPage
+
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [temperatureUnit, setTemperatureUnit] = useState('C')
   const [currentHour, setCurrentHour] = useState(new Date().getHours())
 
-  const fallbackDate = availableDates.includes(selectedDate) ? selectedDate : todayIso
-  const daily = weatherByDate[fallbackDate]
-
- 
-
-  const [weatherData, setWeatherData] = useState(null);
   const { location } = useGeolocation(); // This now gives you { lat, lon, city }
 
-  // At the very top of your fetch function, determine if we are looking at "Today"
-const isToday = selectedDate === new Date().toISOString().split('T')[0];
+  // Use the custom hook to fetch weather and AQI data based on location and selected date
+  const { weatherDataResult, aqiDataResult, isLoading, isError } = useDashboardWeather(location.lat, location.lon, selectedDate);
 
-
-  
-  useEffect(()=>{
-    if (!location.lat || !location.lon) return;
-
-    const fetchAllWeatherData=async()=>{
-      try {
-        const [weatherRes, aqiRes] = await Promise.all([
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&start_date=${selectedDate}&end_date=${selectedDate}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,uv_index,visibility,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,wind_speed_10m_max&timezone=auto`),
-      fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${location.lat}&longitude=${location.lon}&start_date=${selectedDate}&end_date=${selectedDate}&current=european_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,carbon_dioxide&hourly=pm10,pm2_5&timezone=auto`)
-          // fetch(`https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&start_date=${selectedDate}&end_date=${selectedDate}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,uv_index,visibility,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,wind_speed_10m_max&timezone=auto`),
-          // fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${location.lat}&longitude=${location.lon}&start_date=${selectedDate}&end_date=${selectedDate}&current=european_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,carbon_dioxide&hourly=pm10,pm2_5&timezone=auto`)
-          // fetch(`https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&start_date=${selectedDate}&end_date=${selectedDate}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,uv_index,visibility,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,wind_speed_10m_max&timezone=auto`),
-          // fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${location.lat}&longitude=${location.lon}&start_date=${selectedDate}&end_date=${selectedDate}&current=european_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,carbon_dioxide&hourly=pm10,pm2_5&timezone=auto`)
-    ]);
-
-    const weather = await weatherRes.json();
-    const aqi = await aqiRes.json();
-
-    const formattedData=mapWeatherData(weather, aqi)
-    setWeatherData(formattedData);
-    
-    // const hourIdx = new Date().getHours();
-    // const isToday = selectedDate === new Date().toISOString().split('T')[0];
-
-    // const currentHour = new Date().getHours();
-    // const isToday = selectedDate === new Date().toISOString().split('T')[0];
-
-    // setWeatherData({
-  // MAIN BOXES: If it's today, use 'current'. If not, use 'daily' or 'hourly'
-  // displayTemp: isToday 
-  //   ? weather.current.temperature_2m 
-  //   : weather.daily.temperature_2m_max[0],
-    
-  // displayWind: isToday 
-  //   ? weather.current.wind_speed_10m 
-  //   : weather.daily.wind_speed_10m_max[0],
-    
-  // displayHumidity: isToday 
-  //   ? weather.current.relative_humidity_2m 
-  //   : weather.hourly.relative_humidity_2m[0],
-
-  // displayAQI: isToday 
-  //   ? aqi.current.european_aqi 
-  //   : aqi.hourly.european_aqi?.[12] || aqi.hourly.pm10[12], // Pick noon value for historical AQI
-
-  // // REST OF DATA (These already change correctly with the date!)
-  // maxTemp: weather.daily.temperature_2m_max[0],
-  // minTemp: weather.daily.temperature_2m_min[0],
-  // sunrise: weather.daily.sunrise[0],
-  // sunset: weather.daily.sunset[0],
-  // hourly: weather.hourly,
-  // aqiHourly: aqi.hourly,
-  // Add all other gas metrics from aqi.current or aqi.hourly here...
-
-      // displayTemp: isToday ? weather.current.temperature_2m : weather.hourly.temperature_2m[hourIdx],
-      // displayWind: isToday ? weather.current.wind_speed_10m : weather.hourly.wind_speed_10m[hourIdx],
-      // displayHumidity: isToday ? weather.current.relative_humidity_2m : weather.hourly.relative_humidity_2m[hourIdx],
-      // displayAQI: isToday ? aqi.current.european_aqi : aqi.hourly.european_aqi[hourIdx],
-
-      // // GAS METRICS (Synced to the same hour)
-      // pm10: isToday ? aqi.current.pm10 : aqi.hourly.pm10[hourIdx],
-      // pm25: isToday ? aqi.current.pm2_5 : aqi.hourly.pm2_5[hourIdx],
-      
-      // // REST OF DATA (Daily stats already respect the start_date/end_date)
-      // maxTemp: weather.daily.temperature_2m_max[0],
-      // minTemp: weather.daily.temperature_2m_min[0],
-      // sunrise: weather.daily.sunrise[0],
-      // sunset: weather.daily.sunset[0],
-      // maxWind: weather.daily.wind_speed_10m_max[0],
-      // rainProb: weather.daily.precipitation_probability_max[0],
-      
-      // // UV & Visibility (Taking the hour-specific value)
-      // uvIndex: weather.hourly.uv_index[hourIdx],
-      // visibility: weather.hourly.visibility[hourIdx] / 1000, // Convert m to km
-
-      // // ARRAYS FOR CHARTS (Pass the whole 24h array)
-      // hourly: weather.hourly,
-      // airQualityHourly: aqi.hourly,
-
-// });
-
-
-    console.log(formattedData);
-      } catch (error) {
-        console.log("failed to fetch weather data",error);
-        
-      }
+  // Map the raw API results into the format our component expects
+  const weatherData = useMemo(() => {
+    if (weatherDataResult && aqiDataResult) {
+      return mapWeatherData(weatherDataResult, aqiDataResult);
     }
-
-    fetchAllWeatherData();
-
-  },[location.lat, location.lon, selectedDate])
-
-  // This will show the max temp for the date you selected
-
-  
+    return null;
+  }, [weatherDataResult, aqiDataResult]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -144,51 +38,23 @@ const isToday = selectedDate === new Date().toISOString().split('T')[0];
     return () => clearInterval(intervalId)
   }, [])
 
-  useEffect(() => {
-    // Now, instead of hardcoding 28.61, use:
-    // fetchWeather(location.lat, location.lon);
-    console.log("Detecting location...", location.lat, location.lon);
-  }, [location]); // Re-run when location is detected
-
-
-  useEffect(()=>{
-    if(!location.lat || !location.lon) return;
-
-    const fetchTimedData=async()=>{
-      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&start_date=${selectedDate}&end_date=${selectedDate}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,uv_index,visibility,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,wind_speed_10m_max&timezone=auto`
-      const airUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${location.lat}&longitude=${location.lon}&start_date=${selectedDate}&end_date=${selectedDate}&current=european_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,carbon_dioxide&hourly=pm10,pm2_5&timezone=auto`
-    
-    }
-  })
-  
-  const hourlyData = useMemo(
-      () =>
-        daily.hourly.map((item) => ({
-          ...item,
-          temperature: temperatureUnit === 'C' ? item.tempC : +((item.tempC * 9) / 5 + 32).toFixed(1),
-        })),
-      [daily, temperatureUnit],
-    )
- 
-
-  const selectedDateLabel = new Date(`${fallbackDate}T00:00:00`).toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  })
 
   const activeTheme = getTheme(currentHour)
   const temperatureUnitLabel = temperatureUnit === 'C' ? '° C' : '° F'
 
-  // console.log(weatherData?.current?.temp ?? '--')
-  // console.log(weatherData?.daily?.rainProb ?? '--')
-  // console.log(weatherData?.airQuality?.aqi ?? '--')
-  // console.log(weatherData?.daily?.maxWind ?? '--')
-  // console.log(formatTo12Hour(weatherData.daily.sunrise))
-  // console.log(weatherData?.uvIndex?? '--')
-
   // Inside your component's main body:
-const chartData = formatHourlyData(weatherData?.hourly, weatherData?.airQualityHourly);
+const rawChartData = formatHourlyData(weatherData?.hourly, weatherData?.airQualityHourly);
+
+const chartData = useMemo(() => {
+  if (!rawChartData) return [];
+  return rawChartData.map((item) => ({
+    ...item,
+    temperature:
+      temperatureUnit === 'C'
+        ? item.temperature // Assuming formatHourlyData provides it in Celsius
+        : +((item.temperature * 9) / 5 + 32).toFixed(1),
+  }));
+}, [rawChartData, temperatureUnit]);
 
 // Determine which hour to show for historical/future dates.
 // We use the current local hour (so if it's 15:00 now, we show the 15:00 entry
@@ -214,15 +80,20 @@ const displayAQI = isTodayView
   ? weatherData?.airQuality?.aqi
   : weatherData?.airQualityHourly?.european_aqi?.[targetHour] ?? weatherData?.airQualityHourly?.pm10?.[targetHour] ?? '--';
 
-  if (!weatherData) {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-blue-950 via-indigo-950 to-slate-950 px-4 text-white">
-      <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-white/10 p-6 text-center shadow-2xl backdrop-blur-md sm:p-8">
-        <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-cyan-400 border-t-transparent sm:h-14 sm:w-14"></div>
-        <h2 className="text-lg font-semibold sm:text-xl">Syncing with satellites...</h2>
-        <p className="mt-2 text-sm text-slate-300 sm:text-base">Fetching live data for {location.city}</p>
+  if (isError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-blue-950 via-indigo-950 to-slate-950 px-4 text-white">
+        <div className="w-full max-w-sm rounded-3xl border border-red-500/30 bg-red-500/10 p-6 text-center shadow-2xl backdrop-blur-md">
+          <h2 className="text-lg font-semibold text-red-200">System Malfunction</h2>
+          <p className="mt-2 text-sm text-red-100/70">Failed to fetch weather data for {location.city || 'your location'}.</p>
+        </div>
       </div>
-    </div>
+    )
+  }
+
+  if (isLoading || !weatherData) {
+  return (
+    <Loader/>
   );
 }
 
@@ -234,23 +105,11 @@ const displayAQI = isTodayView
         <Navbar selectedDate={selectedDate} 
         onDateChange={(newDate)=>setSelectedDate(newDate)} /> 
 
-        
-
-{/* Main Temp Display
-<h1 className="text-8xl font-bold">{weatherData.displayTemp}°</h1>
-
-{/* Details Cards */}
-{/* <p className="mt-1 text-3xl font-semibold">{weatherData.displayTemp}° C</p>
-<p>Wind Speed: {weatherData.displayWind} km/h</p>
-<p>Humidity: {weatherData.displayHumidity}%</p>
-<p>AQI: {weatherData.displayAQI}</p> */} 
-
           <div className="mt-5 grid gap-3 sm:mt-6 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
             <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
               <p className="text-xs font-medium uppercase tracking-wide text-cyan-100 sm:text-sm">Temperature</p>
-              <p className="mt-1 text-3xl font-semibold sm:text-4xl">{displayTemp ?? '--'}° C</p>
+              <p className="mt-1 text-5xl font-semibold sm:text-4xl">{displayTemp ?? '--'}°C</p>
               <p className="mt-2 text-xs text-slate-200 sm:text-sm">Min {weatherData?.daily?.minTemp ?? '--'}° C | Max {weatherData?.daily?.maxTemp ?? '--'}° C</p>
-              <p className="text-xs text-slate-300 sm:text-sm">Feels like {weatherData?.daily?.feelsLike ?? '--'}° C</p>
             </div>
 
             <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
@@ -276,9 +135,7 @@ const displayAQI = isTodayView
             </div>
 
             <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
-              <p className="text-sm text-cyan-100">Wind & Air</p>
-              <p className="text-xs text-cyan-100 sm:text-sm">Wind Speed {displayWind ?? '--'}</p>
-              <p className="mt-2 flex items-center gap-2 text-xs text-slate-200 sm:text-sm">
+              <p className="text-sm text-cyan-100">Wind & Air</p>              <p className="mt-2 flex items-center gap-2 text-xs text-slate-200 sm:text-sm">
                 <Wind size={16} />
                 Max Wind Speed: {weatherData?.daily?.maxWind ?? '--'} km/h
               </p>
@@ -322,17 +179,12 @@ const displayAQI = isTodayView
               </div>
             </div>
           </section>
-
-          {/* <section className="mt-6 overflow-hidden rounded-2xl border border-white/20 bg-slate-900/40">
-            <img src={radarMap} alt="Radar and map preview" className="h-44 w-full object-cover sm:h-52" />
-            <p className="p-3 text-sm text-slate-200">Radar and map preview</p>
-          </section> */}
         </section>
 
         <section className="mt-7">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-xl font-semibold sm:text-2xl">Hourly Data Visualizations</h2>
-            <div className="inline-flex overflow-hidden rounded-full border border-white/20 bg-white/10">
+            <div className="self-start sm:self-auto inline-flex overflow-hidden rounded-full border border-white/20 bg-white/10">
               <button
                 type="button"
                 onClick={() => setTemperatureUnit('C')}
@@ -350,15 +202,11 @@ const displayAQI = isTodayView
             </div>
           </div>
 
+          <div className="mb-4">
+            <HourlyCarousel data={buildOverviewData(chartData)} temperatureUnitLabel={temperatureUnitLabel} weatherData={weatherData} />
+          </div>
+
           <div className="grid gap-4 lg:grid-cols-2">
-            <HourlyCarousel data={buildOverviewData(chartData)} temperatureUnitLabel={temperatureUnitLabel} />
-            {/* <TemperatureChart data={hourlyData} temperatureUnitLabel={temperatureUnitLabel} />
-            <HumidityChart data={hourlyData} />
-            <PrecipitationChart data={hourlyData} />
-            <VisibilityChart data={hourlyData} />
-            <WindChart data={hourlyData} />
-            <ParticleChart data={hourlyData} /> */}
-            <TemperatureChart data={chartData} temperatureUnitLabel={temperatureUnitLabel} />
             <HumidityChart data={chartData} />
             <PrecipitationChart data={chartData} />
             <VisibilityChart data={chartData} />

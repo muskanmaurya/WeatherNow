@@ -47,8 +47,9 @@ const DataRangePicker = ({
 						value={startDate}
 						min={minDate}
 						max={maxDate}
+						onClick={(e) => e.target.showPicker && e.target.showPicker()}
 						onChange={(event) => onChange({ field: 'startDate', value: event.target.value })}
-						className="w-full rounded-2xl border border-white/20 bg-slate-950/60 px-4 py-3 text-base text-white outline-none ring-cyan-300 transition focus:ring-2"
+						className="w-full cursor-pointer rounded-2xl border border-white/20 bg-slate-950/60 px-4 py-3 text-base text-white outline-none ring-cyan-300 transition focus:ring-2 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:bg-transparent"
 					/>
 				</label>
 
@@ -62,8 +63,9 @@ const DataRangePicker = ({
 						value={endDate}
 						min={minDate}
 						max={maxDate}
+						onClick={(e) => e.target.showPicker && e.target.showPicker()}
 						onChange={(event) => onChange({ field: 'endDate', value: event.target.value })}
-						className="w-full rounded-2xl border border-white/20 bg-slate-950/60 px-4 py-3 text-base text-white outline-none ring-cyan-300 transition focus:ring-2"
+						className="w-full cursor-pointer rounded-2xl border border-white/20 bg-slate-950/60 px-4 py-3 text-base text-white outline-none ring-cyan-300 transition focus:ring-2 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:bg-transparent"
 					/>
 				</label>
 

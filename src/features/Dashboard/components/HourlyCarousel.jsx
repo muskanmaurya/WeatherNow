@@ -2,38 +2,16 @@ import { Area, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAx
 import { ChevronLeft, ChevronRight, Droplets } from 'lucide-react'
 
 
-const HourlyCarousel = ({ data, temperatureUnitLabel }) => {
+const HourlyCarousel = ({ data, temperatureUnitLabel, weatherData }) => {
   return (
     <section className="rounded-2xl border border-white/20 bg-[#2a305f]/85 p-4 shadow-lg backdrop-blur-sm md:col-span-2">
     <div className="mb-4 flex items-center justify-between">
       <h3 className="text-xl font-semibold text-white">Overview</h3>
       <div className="flex items-center gap-3 text-sm text-slate-200">
-        <button
-          type="button"
-          className="inline-flex h-7 w-12 items-center rounded-full bg-white/30 p-1"
-          aria-label="Toggle feels like"
-        >
-          <span className="h-5 w-5 rounded-full bg-white" />
-        </button>
-        <span>Feels like</span>
       </div>
     </div>
 
     <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-[#202a57]/60 p-3 sm:p-4">
-      <button
-        type="button"
-        className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-md bg-slate-900/75 p-1.5 text-slate-200"
-        aria-label="Scroll left"
-      >
-        <ChevronLeft size={16} />
-      </button>
-      <button
-        type="button"
-        className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-md bg-slate-900/75 p-1.5 text-slate-200"
-        aria-label="Scroll right"
-      >
-        <ChevronRight size={16} />
-      </button>
 
       <div className="mb-3 grid grid-cols-12 gap-1 text-center">
         {data.map((point) => (
@@ -80,16 +58,17 @@ const HourlyCarousel = ({ data, temperatureUnitLabel }) => {
 
       <div className="mt-2 flex items-center justify-between text-sm text-slate-200">
         <p>
-          <span className="text-amber-300">Sunset</span> 6:17 PM
+          <span className="text-amber-300">Sunset</span> {weatherData?.daily?.sunset ? new Date(weatherData.daily.sunset).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '6:17 PM'}
         </p>
         <p>
-          <span className="text-yellow-200">Sunrise</span> 5:52 AM
+          <span className="text-yellow-200">Sunrise</span> {weatherData?.daily?.sunrise ? new Date(weatherData.daily.sunrise).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '5:52 AM'}
         </p>
       </div>
     </div>
 
     <div className="mt-3 flex items-center justify-between text-slate-200">
       <p className="text-sm">Temperature</p>
+      {/* Note: Moon phase is currently static placeholder text as Open-Meteo does not provide specific moon phase. */}
       <p className="text-sm">
         Moon phase: <span className="font-semibold text-white">Waning Gibbous</span>
       </p>

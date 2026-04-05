@@ -13,25 +13,32 @@ import {
   formatMinutesToIst,
   shiftDateKey,
   summariseHistoricalRange,
-} from '../features/Historical/services/historicalApi.js'
+} from '../features/Historical/services/historicalEngine.js'
 import { mapHistoricalData } from '../features/Historical/services/historicalMapper.js'
-
 import { useGeolocation } from '../hooks/useGeolocation.js'
-
+import { useHistoricalWeather } from '../hooks/useWeather.js'
 
 const MAX_RANGE_DAYS = 730
 const DEFAULT_RANGE_DAYS = 180
 
 const HistoricalPage = () => {
   const [currentHour, setCurrentHour] = useState(new Date().getHours())
-  const [rangeError, setRangeError] = useState('')
-  const [startDate, setStartDate] = useState(shiftDateKey(historicalBounds.maxDate, -(DEFAULT_RANGE_DAYS - 1)))
-  const [endDate, setEndDate] = useState(historicalBounds.maxDate)
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [zoomWindow, setZoomWindow] = useState({ startIndex: 0, endIndex: DEFAULT_RANGE_DAYS - 1 })
-  const [selectedRecords, setSelectedRecords] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
 
   const { location } = useGeolocation();
+
+  // Use the custom hook to fetch historical weather and AQI data based on location and selected date range
+  const { weatherArchiveResult, aqiArchiveResult, isLoading } = useHistoricalWeather(location.lat, location.lon, startDate, endDate);
+
+  // Map the raw API results into the format our component expects
+  const selectedRecords = useMemo(() => {
+    if (weatherArchiveResult && aqiArchiveResult) {
+      return mapHistoricalData(weatherArchiveResult, aqiArchiveResult);
+    }
+    return [];
+  }, [weatherArchiveResult, aqiArchiveResult]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -51,42 +58,6 @@ const HistoricalPage = () => {
     })
   }, [selectedRecords.length])
 
-  useEffect(()=>{
-    
-
-    const fetchAllHistoricalData = async ()=>{
-
-      if(!location.lat || !location.lon || !startDate || !endDate){
-        console.log("location or date not set, cannot fetch historical data");
-        return ;
-      }
-
-      setIsLoading(true);
-
-      try {
-        const [weatherResponse, airQualityResponse] = await Promise.all([
-          fetch(`https://archive-api.open-meteo.com/v1/archive?latitude=${location.lat}&longitude=${location.lon}&start_date=${startDate}&end_date=${endDate}&daily=temperature_2m_max,temperature_2m_min,temperature_2m_mean,sunrise,sunset,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant&timezone=auto`),
-          fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${location.lat}&longitude=${location.lon}&start_date=${startDate}&end_date=${endDate}&hourly=pm10,pm2_5&timezone=auto`)
-        ])
-
-        const weatherData = await weatherResponse.json()
-        const airQualityData = await airQualityResponse.json()
-
-        const mappedData = mapHistoricalData(weatherData, airQualityData);
-        setSelectedRecords(mappedData);
-
-      } catch (error) {
-
-        console.log("failed to fetch weather archive data ",error);
-        
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchAllHistoricalData();
-  },[location.lat, location.lon, startDate, endDate])
-
   const visibleRecords = useMemo(
     () => selectedRecords.slice(zoomWindow.startIndex, zoomWindow.endIndex + 1),
     [selectedRecords, zoomWindow],
@@ -96,41 +67,35 @@ const HistoricalPage = () => {
   const comparisonRows = useMemo(() => buildComparisonRows(visibleRecords), [visibleRecords])
 
   const handleRangeChange = ({ field, value }) => {
-    setRangeError('')
-
     let nextStart = startDate
     let nextEnd = endDate
 
     if (field === 'startDate') {
       nextStart = value
-      if (nextStart > nextEnd) {
-        nextEnd = nextStart
-      }
-      if (daysBetween(nextStart, nextEnd) >= MAX_RANGE_DAYS) {
-        nextEnd = shiftDateKey(nextStart, MAX_RANGE_DAYS - 1)
-      }
     }
 
     if (field === 'endDate') {
       nextEnd = value
-      if (nextEnd < nextStart) {
-        nextStart = nextEnd
+    }
+
+    // Apply validation only if both dates exist
+    if (nextStart && nextEnd) {
+      if (nextStart > nextEnd) {
+        if (field === 'startDate') nextEnd = nextStart
+        else nextStart = nextEnd
       }
       if (daysBetween(nextStart, nextEnd) >= MAX_RANGE_DAYS) {
-        nextStart = shiftDateKey(nextEnd, -(MAX_RANGE_DAYS - 1))
+        if (field === 'startDate') nextEnd = shiftDateKey(nextStart, MAX_RANGE_DAYS - 1)
+        else nextStart = shiftDateKey(nextEnd, -(MAX_RANGE_DAYS - 1))
       }
     }
 
-    if (nextStart < historicalBounds.minDate) {
+    if (nextStart && nextStart < historicalBounds.minDate) {
       nextStart = historicalBounds.minDate
     }
 
-    if (nextEnd > historicalBounds.maxDate) {
+    if (nextEnd && nextEnd > historicalBounds.maxDate) {
       nextEnd = historicalBounds.maxDate
-    }
-
-    if (nextStart > nextEnd) {
-      nextStart = nextEnd
     }
 
     setStartDate(nextStart)
@@ -138,7 +103,6 @@ const HistoricalPage = () => {
   }
 
   const handlePreset = (days) => {
-    setRangeError('')
     const clampedDays = Math.min(days, MAX_RANGE_DAYS)
     const nextEnd = historicalBounds.maxDate
     const nextStart = shiftDateKey(nextEnd, -(clampedDays - 1))
@@ -256,12 +220,19 @@ const HistoricalPage = () => {
             onChange={handleRangeChange}
             onPreset={handlePreset}
             onReset={handleResetZoom}
-            error={rangeError}
           />
 
-          {isLoading ? (
+          {isLoading && startDate && endDate ? (
             <div className="flex h-64 items-center justify-center rounded-3xl border border-white/15 bg-white/5">
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-cyan-400 border-t-transparent"></div>
+            </div>
+          ) : !startDate || !endDate ? (
+            <div className="flex flex-col h-64 items-center justify-center rounded-3xl border border-white/15 bg-white/5 p-6 text-center">
+              <CalendarRange size={48} className="mb-4 text-cyan-50/50" />
+              <h3 className="text-xl font-semibold text-white">No Date Selected</h3>
+              <p className="mt-2 text-sm text-slate-300">
+                Please pick a start and end date from the calendar to explore historical weather trends safely.
+              </p>
             </div>
           ) : (
             <>
