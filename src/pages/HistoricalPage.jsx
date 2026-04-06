@@ -99,7 +99,7 @@ const HistoricalPage = () => {
       nextEnd = historicalBounds.maxDate
     }
 
-    setSearchParams({ start: nextStart, end: nextEnd })
+    setSearchParams({ start: nextStart, end: nextEnd }, { replace: true })
   }
 
   const handlePreset = (days) => {
@@ -110,7 +110,7 @@ const HistoricalPage = () => {
     setSearchParams({ 
       start: nextStart < historicalBounds.minDate ? historicalBounds.minDate : nextStart, 
       end: nextEnd 
-    })
+    }, { replace: true })
   }
 
   const handleResetZoom = () => {

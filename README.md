@@ -69,7 +69,7 @@ To keep the application scalable, I followed a clean "Services" architecture:
 
 1.  **Clone the repo:**
     ```bash
-    git clone [https://github.com/yourusername/weather-now.git](https://github.com/yourusername/weather-now.git)
+    git clone https://github.com/muskanmaurya/WeatherNow.git
     ```
 2.  **Install dependencies:**
     ```bash
@@ -84,8 +84,6 @@ To keep the application scalable, I followed a clean "Services" architecture:
 
 ## 📧 Contact & Support
 **Muskan Maurya** - Software Engineering Enthusiast
-* **LinkedIn:** [[Your LinkedIn Link](https://www.linkedin.com/in/muskan-maurya-861473232/)]
-* **GitHub:** [@muskanmaurya]
+* **LinkedIn:** [[Muskan Maurya](https://www.linkedin.com/in/muskan-maurya-861473232/)]
 
 ---
-*Created as part of a technical evaluation for [Company Name if applicable].*
