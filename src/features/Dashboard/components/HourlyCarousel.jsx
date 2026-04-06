@@ -17,7 +17,7 @@ const HourlyCarousel = ({ data, temperatureUnitLabel, weatherData }) => {
         {data.map((point) => (
           <div key={point.id} className="min-w-0">
             <p className="text-[11px] text-slate-300">{point.slotLabel}</p>
-            {point.showDayBadge ? <p className="text-[11px] text-cyan-100">Sat 4</p> : <p className="text-[11px] text-transparent">_</p>}
+            <p className="text-[11px] text-transparent">_</p>
             <p className="text-base leading-tight">{point.icon}</p>
             <p className="text-sm text-slate-100">{Math.round(point.temperature)}°</p>
           </div>
