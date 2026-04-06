@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, CalendarRange, LineChart, ShieldCheck } from 'lucide-react'
 import { getTheme } from '../utils/getTheme.js'
 import { themeClasses } from '../features/Dashboard/Services/WeatherEngine.js'
@@ -22,9 +22,10 @@ const MAX_RANGE_DAYS = 730
 const DEFAULT_RANGE_DAYS = 180
 
 const HistoricalPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const startDate = searchParams.get('start') || ''
+  const endDate = searchParams.get('end') || ''
   const [currentHour, setCurrentHour] = useState(new Date().getHours())
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
   const [zoomWindow, setZoomWindow] = useState({ startIndex: 0, endIndex: DEFAULT_RANGE_DAYS - 1 })
 
   const { location } = useGeolocation();
@@ -98,8 +99,7 @@ const HistoricalPage = () => {
       nextEnd = historicalBounds.maxDate
     }
 
-    setStartDate(nextStart)
-    setEndDate(nextEnd)
+    setSearchParams({ start: nextStart, end: nextEnd })
   }
 
   const handlePreset = (days) => {
@@ -107,8 +107,10 @@ const HistoricalPage = () => {
     const nextEnd = historicalBounds.maxDate
     const nextStart = shiftDateKey(nextEnd, -(clampedDays - 1))
 
-    setStartDate(nextStart < historicalBounds.minDate ? historicalBounds.minDate : nextStart)
-    setEndDate(nextEnd)
+    setSearchParams({ 
+      start: nextStart < historicalBounds.minDate ? historicalBounds.minDate : nextStart, 
+      end: nextEnd 
+    })
   }
 
   const handleResetZoom = () => {

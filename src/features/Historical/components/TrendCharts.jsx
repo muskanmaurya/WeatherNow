@@ -236,31 +236,6 @@ const TrendCharts = ({
 						</LineChart>
 					</ResponsiveContainer>
 
-					<div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
-						<div className="flex flex-wrap items-center justify-between gap-3">
-							<div>
-								<p className="text-sm text-slate-300">Dominant wind direction</p>
-								<p className="mt-1 text-2xl font-semibold text-white">
-									{directionDistribution.reduce((best, current) => (current.count > best.count ? current : best), directionDistribution[0]).direction}
-								</p>
-							</div>
-							<p className="text-sm text-slate-300">
-								Appears {directionDistribution.reduce((best, current) => (current.count > best.count ? current : best), directionDistribution[0]).count} times
-							</p>
-						</div>
-
-						<div className="mt-4 w-full">
-							<ResponsiveContainer width="100%" height={220}>
-								<BarChart data={directionDistribution}>
-									<CartesianGrid stroke="rgba(255, 255, 255, 0.08)" strokeDasharray="4 4" />
-									<XAxis dataKey="direction" tick={axisTickStyle} />
-									<YAxis allowDecimals={false} tick={axisTickStyle} />
-									<Tooltip {...chartTooltipStyle} formatter={(value) => [value, 'Days']} />
-									<Bar dataKey="count" name="Days" fill={chartColors.wind} radius={[8, 8, 0, 0]} />
-								</BarChart>
-							</ResponsiveContainer>
-						</div>
-					</div>
 				</ChartShell>
 
 				<ChartShell title="Air quality" subtitle="PM10 and PM2.5 trends across the selected historical window." scrollable={true} dataLength={visibleData.length}>
@@ -279,6 +254,32 @@ const TrendCharts = ({
 							<Line type="monotone" dataKey="pm25" name="PM2.5" stroke={chartColors.pm25} dot={false} strokeWidth={2} />
 						</LineChart>
 					</ResponsiveContainer>
+				</ChartShell>
+
+				<ChartShell title="Dominant wind direction" subtitle="Histogram of dominant wind directions across the period." scrollable={true} dataLength={directionDistribution.length}>
+					<div className="flex flex-wrap items-center justify-between gap-3">
+						<div>
+							<p className="text-sm text-slate-300">Most frequent direction</p>
+							<p className="mt-1 text-2xl font-semibold text-white">
+								{directionDistribution.reduce((best, current) => (current.count > best.count ? current : best), directionDistribution[0]).direction}
+							</p>
+						</div>
+						<p className="text-sm text-slate-300">
+							Appears {directionDistribution.reduce((best, current) => (current.count > best.count ? current : best), directionDistribution[0]).count} times
+						</p>
+					</div>
+
+					<div className="mt-4 w-full">
+						<ResponsiveContainer width="100%" height={210}>
+							<BarChart data={directionDistribution}>
+								<CartesianGrid stroke="rgba(255, 255, 255, 0.08)" strokeDasharray="4 4" />
+								<XAxis dataKey="direction" tick={axisTickStyle} />
+								<YAxis allowDecimals={false} tick={axisTickStyle} />
+								<Tooltip {...chartTooltipStyle} formatter={(value) => [value, 'Days']} />
+								<Bar dataKey="count" name="Days" fill={chartColors.wind} radius={[8, 8, 0, 0]} />
+							</BarChart>
+						</ResponsiveContainer>
+					</div>
 				</ChartShell>
 			</div>
 		</section>
