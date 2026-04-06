@@ -8,9 +8,21 @@
 
 ## 📸 Screenshots
 
-| Dashboard Overview | Historical Trends Analysis |
+## 📸 Project Showreel
+
+### 🖥️ Desktop Experience
+| Main Dashboard | Hourly Analysis |
 | :--- | :--- |
-| ![Main Dashboard](assets/dashboard.png) | ![Trends Page](assets/trends.png) |
+| ![Desktop Dashboard](assets/desktop-dashboard.png) | ![Hourly Forecast](assets/desktop-hourly-forecast.png) |
+
+| Historical Analytics | Data Comparison |
+| :--- | :--- |
+| ![Historical Trends](assets/desktop-historical-trends.png) | ![Data Comparison](assets/desktop-data-comparision.png) |
+
+### 📱 Mobile-First Design
+| Dashboard | Air Quality | Real-time Charts | Historical Range |
+| :--- | :--- | :--- | :--- |
+| ![Mobile Dashboard](assets/mobile-dashboard.jpg) | ![Mobile AQI](assets/mobile-aqi.jpg) | ![Mobile Charts](assets/mobile-charts.jpg) | ![Mobile Range](assets/mobile-historical-range.jpg) |
 
 ---
 
