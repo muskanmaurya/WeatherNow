@@ -17,6 +17,7 @@ import {
 import { mapHistoricalData } from '../features/Historical/services/historicalMapper.js'
 import { useGeolocation } from '../hooks/useGeolocation.js'
 import { useHistoricalWeather } from '../hooks/useWeather.js'
+import Footer from '../components/Layout/Footer.jsx'
 
 const MAX_RANGE_DAYS = 730
 const DEFAULT_RANGE_DAYS = 180
@@ -252,6 +253,7 @@ const HistoricalPage = () => {
             </>
           )}
         </div>
+        <Footer />
       </main>
     </div>
   )

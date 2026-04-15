@@ -6,6 +6,7 @@ import { HumidityChart, PrecipitationChart, VisibilityChart, WindChart, Particle
 import { formatHourlyData, formatTo12Hour } from '../utils/formatters.js'
 import { themeClasses,buildOverviewData } from '../features/Dashboard/Services/WeatherEngine.js'
 import Navbar from '../components/Layout/Navbar.jsx'
+import Footer from '../components/Layout/Footer.jsx'
 import { useGeolocation } from '../hooks/useGeolocation.js'
 import { mapWeatherData } from '../features/Dashboard/Services/weatherMapper.js'
 import { useDashboardWeather } from '../hooks/useWeather.js'
@@ -214,6 +215,7 @@ const displayAQI = isTodayView
             <ParticleChart data={chartData} />
           </div>
         </section>
+        <Footer />
       </main>
     </div>
   )
